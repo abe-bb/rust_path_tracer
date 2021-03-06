@@ -1,6 +1,6 @@
-use crate::common::{Vec3, VertexComp};
+use crate::common::{Vec3, VertexFormat};
 
-pub struct Camera<T: VertexComp> {
+pub struct Camera<T: VertexFormat> {
     look_from: Vec3<T>,
     look_at: Vec3<T>,
     up: Vec3<T>,
@@ -14,7 +14,7 @@ pub struct Camera<T: VertexComp> {
     y_res: u16,
 }
 
-impl<T: VertexComp> Camera<T> {
+impl<T: VertexFormat> Camera<T> {
     pub fn new(
         look_at: Vec3<T>,
         look_from: Vec3<T>,

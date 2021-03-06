@@ -1,22 +1,22 @@
 use crate::common::Intersection;
 use crate::common::Ray;
 use crate::common::Vec3;
-use crate::common::VertexComp;
+use crate::common::VertexFormat;
 use crate::scene::visible::Visible;
 
 #[derive(Debug)]
-pub struct Sphere<T: VertexComp> {
+pub struct Sphere<T: VertexFormat> {
     center: Vec3<T>,
     radius: T,
 }
 
-impl<T: VertexComp> Sphere<T> {
+impl<T: VertexFormat> Sphere<T> {
     fn new(center: Vec3<T>, radius: T) -> Sphere<T> {
         Sphere { center, radius }
     }
 }
 
-impl<T: VertexComp> Visible<T> for Sphere<T> {
+impl<T: VertexFormat> Visible<T> for Sphere<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
         let oc = self.center.sub(&ray.origin);
         let tca = ray.direction.dot(&oc);

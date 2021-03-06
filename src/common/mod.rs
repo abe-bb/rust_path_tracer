@@ -2,18 +2,18 @@ use num;
 use std::fmt::Debug;
 
 // Traits defining needed operations for vectors
-pub trait VertexComp: num::Float + Debug {}
+pub trait VertexFormat: num::Float + Debug {}
 
-impl<T> VertexComp for T where T: num::Float + Debug {}
+impl<T> VertexFormat for T where T: num::Float + Debug {}
 
 #[derive(PartialEq, Debug)]
-pub struct Vec3<T: VertexComp> {
+pub struct Vec3<T: VertexFormat> {
     x: T,
     y: T,
     z: T,
 }
 
-impl<T: VertexComp> Vec3<T> {
+impl<T: VertexFormat> Vec3<T> {
     pub fn new(x: T, y: T, z: T) -> Vec3<T> {
         Vec3 { x, y, z }
     }
@@ -69,7 +69,7 @@ impl<T: VertexComp> Vec3<T> {
     }
 }
 
-impl<T: VertexComp> std::ops::Sub for Vec3<T> {
+impl<T: VertexFormat> std::ops::Sub for Vec3<T> {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -82,12 +82,12 @@ impl<T: VertexComp> std::ops::Sub for Vec3<T> {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct Ray<T: VertexComp> {
+pub struct Ray<T: VertexFormat> {
     pub origin: Vec3<T>,
     pub direction: Vec3<T>,
 }
 
-impl<T: VertexComp> Ray<T> {
+impl<T: VertexFormat> Ray<T> {
     pub fn new(origin: Vec3<T>, direction: Vec3<T>) -> Ray<T> {
         Ray {
             origin,
@@ -97,7 +97,7 @@ impl<T: VertexComp> Ray<T> {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct Intersection<T: VertexComp> {
+pub struct Intersection<T: VertexFormat> {
     pub point: Vec3<T>,
     pub normal: Vec3<T>,
 }

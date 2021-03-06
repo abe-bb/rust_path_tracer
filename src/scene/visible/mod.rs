@@ -1,7 +1,7 @@
-use crate::common::{Intersection, Ray, VertexComp};
+use crate::common::{Intersection, Ray, VertexFormat};
 
 mod sphere;
 
-pub trait Visible<T: VertexComp> {
+pub trait Visible<T: VertexFormat> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>>;
 }
