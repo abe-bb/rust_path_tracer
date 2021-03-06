@@ -1,24 +1,24 @@
-use crate::common;
+use crate::common::{Vec3, VertexComp};
 
-pub struct Camera<T: common::VertexComp> {
-    look_from: common::Vec3<T>,
-    look_at: common::Vec3<T>,
-    up: common::Vec3<T>,
+pub struct Camera<T: VertexComp> {
+    look_from: Vec3<T>,
+    look_at: Vec3<T>,
+    up: Vec3<T>,
     aspect_ratio: T,
     horizontal_fov: T,
     vertical_fov: T,
-    view_min: common::Vec3<T>,
-    view_max: common::Vec3<T>,
-    vpn: common::Vec3<T>,
+    view_min: Vec3<T>,
+    view_max: Vec3<T>,
+    vpn: Vec3<T>,
     x_res: u16,
     y_res: u16,
 }
 
-impl<T: common::VertexComp> Camera<T> {
+impl<T: VertexComp> Camera<T> {
     pub fn new(
-        look_at: common::Vec3<T>,
-        look_from: common::Vec3<T>,
-        up: common::Vec3<T>,
+        look_at: Vec3<T>,
+        look_from: Vec3<T>,
+        up: Vec3<T>,
         width: T,
         height: T,
         horizontal_fov: T,
@@ -42,8 +42,8 @@ impl<T: common::VertexComp> Camera<T> {
             aspect_ratio,
             horizontal_fov,
             vertical_fov,
-            view_min: common::Vec3::new(-horizontal_distance, -vertical_distance, T::zero()),
-            view_max: common::Vec3::new(horizontal_distance, vertical_distance, T::zero()),
+            view_min: Vec3::new(-horizontal_distance, -vertical_distance, T::zero()),
+            view_max: Vec3::new(horizontal_distance, vertical_distance, T::zero()),
             vpn,
             x_res,
             y_res,

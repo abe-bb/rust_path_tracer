@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 // Traits defining needed operations for vectors
 pub trait VertexComp: num::Float + Debug {}
+
 impl<T> VertexComp for T where T: num::Float + Debug {}
 
 #[derive(PartialEq, Debug)]
@@ -79,6 +80,8 @@ impl<T: VertexComp> std::ops::Sub for Vec3<T> {
         }
     }
 }
+
+#[derive(PartialEq, Debug)]
 pub struct Ray<T: VertexComp> {
     pub origin: Vec3<T>,
     pub direction: Vec3<T>,
