@@ -15,10 +15,6 @@ impl<T: VertexFormat> PointLight<T> {
     pub fn new(color: Color<T>, position: Vec3<T>) -> Self {
         PointLight { color, position }
     }
-
-    pub fn set_position(&mut self, position: Vec3<T>) {
-        self.position = position;
-    }
 }
 
 impl<T: VertexFormat> LightSource<T> for PointLight<T> {

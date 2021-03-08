@@ -1,6 +1,5 @@
-use crate::common::{self, Color, Intersection, Vec3, VertexFormat};
+use crate::common::{Color, Intersection, Vec3, VertexFormat};
 use crate::scene::light::LightSource;
-use ::std::cmp;
 
 pub struct Material<T: VertexFormat> {
     diffuse_coefficient: T,

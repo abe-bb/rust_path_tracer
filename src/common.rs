@@ -150,14 +150,6 @@ pub struct Intersection<T: VertexFormat> {
     pub normal: Vec3<T>,
 }
 
-pub fn max<T: VertexFormat>(v1: T, v2: T) -> T {
-    if v1 > v2 {
-        return v1;
-    }
-
-    v2
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -214,27 +206,27 @@ mod tests {
     #[should_panic]
     fn invalid_lower_boundary_color() {
         let color_vector = Vec3::new(-0.0000000001, -0.0000000001, -0.0000000001);
-        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
+        Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_upper_boundary_color() {
         let color_vector = Vec3::new(1.0000000001, 1.0000000001, 1.0000000001);
-        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
+        Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_lower_color() {
         let color_vector = Vec3::new(-2.0, -2.0, -2.0);
-        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
+        Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_upper_color() {
         let color_vector = Vec3::new(2.0, 2.0, 2.0);
-        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
+        Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 }

@@ -24,8 +24,4 @@ impl<T: VertexFormat> Scene<T> {
     pub fn add_visible(&mut self, visible: Box<dyn Visible<T>>) {
         self.visibles.push(visible);
     }
-
-    pub fn set_ambient_color(&mut self, ambient_color: Vec3<T>) {
-        self.ambient_color = ambient_color;
-    }
 }

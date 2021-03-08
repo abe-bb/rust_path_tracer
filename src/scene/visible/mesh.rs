@@ -51,11 +51,6 @@ mod tests {
 
         let ray = Ray::new(Vec3::new(10.0, 0.0, 0.0), Vec3::new(0.0, 0.0, -1.0));
 
-        let exptected_intersection = Intersection {
-            point: Vec3::new(0.0, 0.0, -1.0),
-            normal: Vec3::new(0.0, 0.0, 1.0),
-        };
-
         assert_eq!(None, mesh.intersect(&ray));
     }
 }

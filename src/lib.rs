@@ -1,4 +1,3 @@
-use crate::common::Vec3;
 use num;
 
 mod common;
