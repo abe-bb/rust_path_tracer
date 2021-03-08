@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn point_light_vector_is_normalized() {
-        let color = Color::new(Vec3::new(0.5, 0.5, 0.5)).unwrap();
+        let color = Color::from_color_vertex(Vec3::new(0.5, 0.5, 0.5)).unwrap();
         let position = Vec3::new(10.0, 10.0, 10.0);
         let intersection_point = Vec3::new(0.0, 0.0, 0.0);
 
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn point_light_vector_is_correct() {
-        let color = Color::new(Vec3::new(0.5, 0.5, 0.5)).unwrap();
+        let color = Color::from_color_vertex(Vec3::new(0.5, 0.5, 0.5)).unwrap();
         let position = Vec3::new(10.0, 10.0, 10.0);
         let intersection_point = Vec3::new(0.0, 0.0, 0.0);
 

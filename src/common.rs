@@ -110,8 +110,13 @@ pub struct Color<T: VertexFormat> {
 }
 
 impl<T: VertexFormat> Color<T> {
+    // Validates color representation, returning None if passed in color data is invalid
+    pub fn new(red: T, green: T, blue: T) -> Option<Color<T>> {
+        Color::from_color_vertex(Vec3::new(red, green, blue))
+    }
+
     // Validates color representation, returning None if passed in vertex is invalid
-    pub fn new(color: Vec3<T>) -> Option<Color<T>> {
+    pub fn from_color_vertex(color: Vec3<T>) -> Option<Color<T>> {
         let upper_threshhold = T::one();
         let lower_threshhold = T::zero();
         if color.x > upper_threshhold || color.y > upper_threshhold || color.z > upper_threshhold {
@@ -174,7 +179,7 @@ mod tests {
     #[test]
     fn valid_lower_boundary_color() {
         let color_vector = Vec3::new(0.0, 0.0, 0.0);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
 
         assert_eq!(color.color_vector(), &color_vector)
     }
@@ -182,7 +187,7 @@ mod tests {
     #[test]
     fn valid_middle_color() {
         let color_vector = Vec3::new(0.5, 0.5, 0.5);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
 
         assert_eq!(color.color_vector(), &color_vector)
     }
@@ -190,7 +195,7 @@ mod tests {
     #[test]
     fn valid_upper_boundary_color() {
         let color_vector = Vec3::new(1.0, 1.0, 1.0);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
 
         assert_eq!(color.color_vector(), &color_vector)
     }
@@ -199,28 +204,28 @@ mod tests {
     #[should_panic]
     fn invalid_lower_boundary_color() {
         let color_vector = Vec3::new(-0.0000000001, -0.0000000001, -0.0000000001);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_upper_boundary_color() {
         let color_vector = Vec3::new(1.0000000001, 1.0000000001, 1.0000000001);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_lower_color() {
         let color_vector = Vec3::new(-2.0, -2.0, -2.0);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 
     #[test]
     #[should_panic]
     fn invalid_upper_color() {
         let color_vector = Vec3::new(2.0, 2.0, 2.0);
-        let color = Color::new(color_vector.clone()).unwrap();
+        let color = Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 }
 
