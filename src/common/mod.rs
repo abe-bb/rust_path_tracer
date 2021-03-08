@@ -6,7 +6,7 @@ pub trait VertexFormat: num::Float + Debug {}
 
 impl<T> VertexFormat for T where T: num::Float + Debug {}
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Vec3<T: VertexFormat> {
     pub x: T,
     pub y: T,
@@ -163,5 +163,29 @@ mod tests {
         assert!(approx_eq!(f64, vector.x, expected.x, ulps = 1));
         assert!(approx_eq!(f64, vector.y, expected.y, ulps = 1));
         assert!(approx_eq!(f64, vector.z, expected.z, ulps = 1));
+    }
+
+    #[test]
+    fn valid_lower_color() {
+        let color_vector = Vec3::new(0.0, 0.0, 0.0);
+        let color = Color::new(color_vector.clone()).unwrap();
+
+        assert_eq!(color.color_vector(), &color_vector)
+    }
+
+    #[test]
+    fn valid_middle_color() {
+        let color_vector = Vec3::new(0.5, 0.5, 0.5);
+        let color = Color::new(color_vector.clone()).unwrap();
+
+        assert_eq!(color.color_vector(), &color_vector)
+    }
+
+    #[test]
+    fn valid_upper_color() {
+        let color_vector = Vec3::new(1.0, 1.0, 1.0);
+        let color = Color::new(color_vector.clone()).unwrap();
+
+        assert_eq!(color.color_vector(), &color_vector)
     }
 }
