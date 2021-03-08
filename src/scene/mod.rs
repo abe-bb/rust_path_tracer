@@ -3,6 +3,7 @@ use crate::scene::camera::Camera;
 use crate::scene::visible::Visible;
 
 mod camera;
+mod light;
 mod visible;
 
 struct Scene<T: VertexFormat> {

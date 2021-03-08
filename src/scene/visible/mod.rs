@@ -1,6 +1,5 @@
 use crate::common::{Intersection, Ray, VertexFormat};
 
-mod light;
 mod material;
 mod sphere;
 

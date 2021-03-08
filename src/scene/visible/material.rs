@@ -1,5 +1,5 @@
 use crate::common::{self, Color, Intersection, Vec3, VertexFormat};
-use crate::scene::visible::light::LightSource;
+use crate::scene::light::LightSource;
 use ::std::cmp;
 
 pub struct Material<T: VertexFormat> {
