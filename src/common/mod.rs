@@ -31,6 +31,14 @@ impl<T: VertexFormat> Vec3<T> {
         }
     }
 
+    pub fn scalar_mul(&self, other: &Vec3<T>) -> Vec3<T> {
+        Vec3 {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
+    }
+
     pub fn sub(&self, other: &Vec3<T>) -> Vec3<T> {
         Vec3 {
             x: self.x - other.x,
@@ -96,6 +104,27 @@ impl<T: VertexFormat> Ray<T> {
     }
 }
 
+// Color struct. Stores colors using values from RGB from 0.0 to 1.0
+pub struct Color<T: VertexFormat> {
+    color: Vec3<T>,
+}
+
+impl<T: VertexFormat> Color<T> {
+    // Validates color representation, returning None if passed in vertex is invalid
+    pub fn new(color: Vec3<T>) -> Option<Color<T>> {
+        let threshhold = T::one();
+        if color.x > threshhold || color.y > threshhold || color.z > threshhold {
+            return None;
+        }
+
+        Some(Color { color })
+    }
+
+    pub fn color_vector(&self) -> &Vec3<T> {
+        &self.color
+    }
+}
+
 #[derive(PartialEq, Debug)]
 pub struct Intersection<T: VertexFormat> {
     pub point: Vec3<T>,
@@ -122,4 +151,12 @@ mod tests {
 
         assert_eq!(expected, vector.normalize());
     }
+}
+
+pub fn max<T: VertexFormat>(v1: T, v2: T) -> T {
+    if v1 > v2 {
+        return v1;
+    }
+
+    v2
 }

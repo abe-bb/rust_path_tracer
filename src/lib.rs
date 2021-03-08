@@ -33,24 +33,27 @@ struct SubImage<T: num::Integer> {
     rows: usize,
     cols: usize,
     length: usize,
-    bitmap: Vec<RGBPixel<T>>,
+    pixel_width: u8,
+    bitmap: Vec<T>,
 }
 
 impl<T: num::Integer> SubImage<T> {
-    fn new(pos_row: usize, pos_col: usize, rows: usize, cols: usize, length: usize) -> SubImage<T> {
+    fn new(
+        pos_row: usize,
+        pos_col: usize,
+        rows: usize,
+        cols: usize,
+        length: usize,
+        pixel_width: u8,
+    ) -> SubImage<T> {
         SubImage {
             pos_row,
             pos_col,
             rows,
             cols,
             length,
+            pixel_width,
             bitmap: Vec::with_capacity(length),
         }
     }
-}
-
-pub struct RGBPixel<T> {
-    red: T,
-    green: T,
-    blue: T,
 }
