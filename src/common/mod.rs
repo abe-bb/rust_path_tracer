@@ -112,8 +112,12 @@ pub struct Color<T: VertexFormat> {
 impl<T: VertexFormat> Color<T> {
     // Validates color representation, returning None if passed in vertex is invalid
     pub fn new(color: Vec3<T>) -> Option<Color<T>> {
-        let threshhold = T::one();
-        if color.x > threshhold || color.y > threshhold || color.z > threshhold {
+        let upper_threshhold = T::one();
+        let lower_threshhold = T::zero();
+        if color.x > upper_threshhold || color.y > upper_threshhold || color.z > upper_threshhold {
+            return None;
+        }
+        else if color.x < lower_threshhold || color.y < lower_threshhold || color.z < lower_threshhold {
             return None;
         }
 
@@ -144,6 +148,7 @@ mod tests {
     use super::*;
     use float_cmp::approx_eq;
 
+    // Vector tests
     #[test]
     fn normalize_unit_vectors() {
         let unit_x = Vec3::new(-1.0, 0.0, 0.0);
@@ -165,8 +170,9 @@ mod tests {
         assert!(approx_eq!(f64, vector.z, expected.z, ulps = 1));
     }
 
+    // Color tests
     #[test]
-    fn valid_lower_color() {
+    fn valid_lower_boundary_color() {
         let color_vector = Vec3::new(0.0, 0.0, 0.0);
         let color = Color::new(color_vector.clone()).unwrap();
 
@@ -182,10 +188,39 @@ mod tests {
     }
 
     #[test]
-    fn valid_upper_color() {
+    fn valid_upper_boundary_color() {
         let color_vector = Vec3::new(1.0, 1.0, 1.0);
         let color = Color::new(color_vector.clone()).unwrap();
 
         assert_eq!(color.color_vector(), &color_vector)
     }
+
+    #[test]
+    #[should_panic]
+    fn invalid_lower_boundary_color() {
+        let color_vector = Vec3::new(-0.0000000001, -0.0000000001, -0.0000000001);
+        let color = Color::new(color_vector.clone()).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_upper_boundary_color() {
+        let color_vector = Vec3::new(1.0000000001, 1.0000000001, 1.0000000001);
+        let color = Color::new(color_vector.clone()).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_lower_color() {
+        let color_vector = Vec3::new(-2.0, -2.0, -2.0);
+        let color = Color::new(color_vector.clone()).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn invalid_upper_color() {
+        let color_vector = Vec3::new(2.0, 2.0, 2.0);
+        let color = Color::new(color_vector.clone()).unwrap();
+    }
 }
+
