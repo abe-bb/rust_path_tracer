@@ -67,6 +67,14 @@ impl<T: VertexFormat> Vec3<T> {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
+    pub fn cross(&self, other: &Vec3<T>) -> Vec3<T> {
+        Vec3 {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        }
+    }
+
     pub fn normalize(mut self) -> Self {
         let dist = self.mag_sqrd().sqrt();
         self.x = self.x / dist;
@@ -121,8 +129,10 @@ impl<T: VertexFormat> Color<T> {
         let lower_threshhold = T::zero();
         if color.x > upper_threshhold || color.y > upper_threshhold || color.z > upper_threshhold {
             return None;
-        }
-        else if color.x < lower_threshhold || color.y < lower_threshhold || color.z < lower_threshhold {
+        } else if color.x < lower_threshhold
+            || color.y < lower_threshhold
+            || color.z < lower_threshhold
+        {
             return None;
         }
 
@@ -228,4 +238,3 @@ mod tests {
         let color = Color::from_color_vertex(color_vector.clone()).unwrap();
     }
 }
-
