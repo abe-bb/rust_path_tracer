@@ -8,9 +8,9 @@ impl<T> VertexFormat for T where T: num::Float + Debug {}
 
 #[derive(PartialEq, Debug)]
 pub struct Vec3<T: VertexFormat> {
-    x: T,
-    y: T,
-    z: T,
+    pub x: T,
+    pub y: T,
+    pub z: T,
 }
 
 impl<T: VertexFormat> Vec3<T> {
@@ -131,9 +131,18 @@ pub struct Intersection<T: VertexFormat> {
     pub normal: Vec3<T>,
 }
 
+pub fn max<T: VertexFormat>(v1: T, v2: T) -> T {
+    if v1 > v2 {
+        return v1;
+    }
+
+    v2
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use float_cmp::approx_eq;
 
     #[test]
     fn normalize_unit_vectors() {
@@ -144,19 +153,15 @@ mod tests {
     }
 
     #[test]
-    fn normalize() {
+    fn normalize_vector() {
         let vector = Vec3::new(1.0, 1.0, 0.0);
 
         let expected = Vec3::new(1.0 / 2.0_f64.sqrt(), 1.0 / 2.0_f64.sqrt(), 0.0);
 
-        assert_eq!(expected, vector.normalize());
-    }
-}
+        let vector = vector.normalize();
 
-pub fn max<T: VertexFormat>(v1: T, v2: T) -> T {
-    if v1 > v2 {
-        return v1;
+        assert!(approx_eq!(f64, vector.x, expected.x, ulps = 1));
+        assert!(approx_eq!(f64, vector.y, expected.y, ulps = 1));
+        assert!(approx_eq!(f64, vector.z, expected.z, ulps = 1));
     }
-
-    v2
 }
