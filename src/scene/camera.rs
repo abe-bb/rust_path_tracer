@@ -1,4 +1,4 @@
-use crate::common::{Vec3, VertexFormat};
+use crate::common::{Ray, Vec3, VertexFormat};
 
 pub struct Camera<T: VertexFormat> {
     look_from: Vec3<T>,
@@ -9,9 +9,11 @@ pub struct Camera<T: VertexFormat> {
     vertical_fov: T,
     view_min: Vec3<T>,
     view_max: Vec3<T>,
-    vpn: Vec3<T>,
-    x_res: u16,
-    y_res: u16,
+    x_res: T,
+    y_res: T,
+    u: Vec3<T>,
+    v: Vec3<T>,
+    w: Vec3<T>,
 }
 
 impl<T: VertexFormat> Camera<T> {
@@ -22,8 +24,6 @@ impl<T: VertexFormat> Camera<T> {
         width: T,
         height: T,
         horizontal_fov: T,
-        x_res: u16,
-        y_res: u16,
     ) -> Camera<T> {
         let aspect_ratio = width / height;
 
@@ -35,6 +35,9 @@ impl<T: VertexFormat> Camera<T> {
 
         let vpn = look_from.sub(&look_at).normalize();
 
+        let u = up.cross(&vpn).normalize();
+        let v = vpn.cross(&u).normalize();
+
         Camera {
             look_at,
             look_from,
@@ -44,9 +47,30 @@ impl<T: VertexFormat> Camera<T> {
             vertical_fov,
             view_min: Vec3::new(-horizontal_distance, -vertical_distance, T::zero()),
             view_max: Vec3::new(horizontal_distance, vertical_distance, T::zero()),
-            vpn,
-            x_res,
-            y_res,
+            x_res: width,
+            y_res: height,
+            w: vpn,
+            u,
+            v,
         }
+    }
+
+    pub fn ray(&self, i: T, j: T) -> Ray<T> {
+        let u = (i - T::zero()) * ((self.view_max.x - self.view_min.x) / self.x_res);
+        let v = (j - T::zero()) * ((self.view_max.y - self.view_min.y) / self.y_res);
+        let w = T::zero();
+
+        // location of pixel (or sub pixel) in world space
+        let pixel_loc = self
+            .look_at
+            .add(&self.u.mul(u))
+            .add(&self.v.mul(v))
+            .add(&self.w.mul(w));
+
+        let origin = self.look_from.clone();
+
+        let direction = pixel_loc.sub(&origin).normalize();
+
+        Ray::new(origin, direction)
     }
 }
