@@ -1,6 +1,7 @@
 use num;
 
 mod common;
+mod image;
 mod scene;
 
 // Splits and stores an image into renderable chunks

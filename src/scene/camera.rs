@@ -1,4 +1,4 @@
-use crate::common::{Ray, Vec3, VertexFormat};
+use crate::common::{Ray, Spacial, Vec3, VertexFormat};
 
 pub struct Camera<T: VertexFormat> {
     look_from: Vec3<T>,
@@ -14,6 +14,12 @@ pub struct Camera<T: VertexFormat> {
     u: Vec3<T>,
     v: Vec3<T>,
     w: Vec3<T>,
+}
+
+impl<T: VertexFormat> Spacial<T> for Camera<T> {
+    fn location(&self) -> &Vec3<T> {
+        &self.look_from
+    }
 }
 
 impl<T: VertexFormat> Camera<T> {
