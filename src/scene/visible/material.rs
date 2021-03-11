@@ -9,6 +9,7 @@ pub struct Material<T: VertexFormat> {
     specular_coefficient: T,
     phong_exponent: T,
     specular_color: Color<T>,
+    reflective_coefficient: T,
 }
 
 impl<T: VertexFormat> Material<T> {
@@ -20,6 +21,7 @@ impl<T: VertexFormat> Material<T> {
         phong_exponent: T,
         ambient_coefficient: T,
         ambient_color: Color<T>,
+        reflective_coefficient: T,
     ) -> Self {
         Material {
             diffuse_coefficient,
@@ -29,6 +31,7 @@ impl<T: VertexFormat> Material<T> {
             specular_coefficient,
             phong_exponent,
             specular_color,
+            reflective_coefficient,
         }
     }
 
@@ -81,6 +84,10 @@ impl<T: VertexFormat> Material<T> {
             .mul(self.specular_coefficient)
             .mul(T::zero().max(v.dot(&r)).powf(self.phong_exponent))
     }
+
+    pub fn is_reflective(&self) -> bool {
+        self.reflective_coefficient > T::zero()
+    }
 }
 
 #[cfg(test)]
@@ -98,6 +105,7 @@ mod tests {
             32.0,
             0.1,
             Color::new(0.2, 0.2, 0.2).unwrap(),
+            0.0,
         );
 
         let expected_diffuse = Color::new(0.2 * 0.1, 0.0, 0.0).unwrap();
@@ -115,6 +123,7 @@ mod tests {
             32.0,
             0.1,
             Color::new(0.2, 0.2, 0.2).unwrap(),
+            0.0,
         );
 
         let intersection = Intersection {
@@ -149,6 +158,7 @@ mod tests {
             32.0,
             0.1,
             Color::new(0.2, 0.2, 0.2).unwrap(),
+            0.0,
         );
 
         let intersection = Intersection {

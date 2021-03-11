@@ -6,6 +6,11 @@ pub trait VertexFormat: num::Float + Debug {}
 
 impl<T> VertexFormat for T where T: num::Float + Debug {}
 
+// Trait for objects that are located in the 3D World
+pub trait Spacial<T: VertexFormat> {
+    fn location(&self) -> &Vec3<T>;
+}
+
 #[derive(PartialEq, Debug, Clone)]
 pub struct Vec3<T: VertexFormat> {
     pub x: T,
@@ -113,6 +118,7 @@ impl<T: VertexFormat> Ray<T> {
 }
 
 // Color struct. Stores colors using values from RGB from 0.0 to 1.0
+#[derive(Clone)]
 pub struct Color<T: VertexFormat> {
     color: Vec3<T>,
 }

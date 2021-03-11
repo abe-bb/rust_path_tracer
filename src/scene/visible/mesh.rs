@@ -1,5 +1,5 @@
-use crate::common::{Intersection, Ray, Vec3, VertexFormat};
-use crate::scene::visible::Visible;
+use crate::common::{Intersection, Ray, Spacial, Vec3, VertexFormat};
+use crate::scene::visible::{Intersectable, Visible};
 
 pub struct Mesh<T: VertexFormat> {
     vertices: Vec<Vec3<T>>,
@@ -13,9 +13,16 @@ impl<T: VertexFormat> Mesh<T> {
     }
 }
 
-impl<T: VertexFormat> Visible<T> for Mesh<T> {
+impl<T: VertexFormat> Intersectable<T> for Mesh<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
         None
+    }
+}
+
+impl<T: VertexFormat> Spacial<T> for Mesh<T> {
+    fn location(&self) -> &Vec3<T> {
+        //     TODO: maybe change this to be the something else? like an object origin or something.
+        &self.vertices.first().unwrap()
     }
 }
 
