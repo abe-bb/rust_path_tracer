@@ -1,4 +1,5 @@
 use crate::common::{Color, Intersection, Ray, Spacial, Vec3, VertexFormat};
+use crate::image::Image;
 use crate::scene::camera::Camera;
 use crate::scene::light::LightSource;
 use crate::scene::visible::Visible;
@@ -40,7 +41,9 @@ impl<T: VertexFormat> Scene<T> {
     }
 
     // immutable self borrows
-    pub fn
+    pub fn render(&self) -> Image<T> {
+        Image::new(self.camera.width(), self.camera.height())
+    }
 
     fn trace_ray(&self, ray: Ray<T>) -> Color<T> {
         let mut dist = T::zero();

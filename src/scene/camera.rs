@@ -11,6 +11,8 @@ pub struct Camera<T: VertexFormat> {
     view_max: Vec3<T>,
     x_res: T,
     y_res: T,
+    width: u32,
+    height: u32,
     u: Vec3<T>,
     v: Vec3<T>,
     w: Vec3<T>,
@@ -27,16 +29,18 @@ impl<T: VertexFormat> Camera<T> {
         look_at: Vec3<T>,
         look_from: Vec3<T>,
         up: Vec3<T>,
-        width: T,
-        height: T,
+        width: u32,
+        height: u32,
         horizontal_fov: T,
     ) -> Camera<T> {
-        let aspect_ratio = width / height;
+        let x_res = T::from(width).unwrap();
+        let y_res = T::from(height).unwrap();
+        let aspect_ratio = x_res / y_res;
 
         let vertical_fov = T::from(2.0).unwrap()
-            * ((horizontal_fov / T::from(2.0).unwrap()).tan() * (height / width)).atan();
+            * ((horizontal_fov / T::from(2.0).unwrap()).tan() * (y_res / x_res)).atan();
 
-        let horizontal_distance = (horizontal_fov / T::from(2.0).unwrap()).tan();
+        let horizontal_distance: T = (horizontal_fov / T::from(2.0).unwrap()).tan();
         let vertical_distance = (vertical_fov / T::from(2.0).unwrap()).tan();
 
         let vpn = look_from.sub(&look_at).normalize();
@@ -53,8 +57,10 @@ impl<T: VertexFormat> Camera<T> {
             vertical_fov,
             view_min: Vec3::new(-horizontal_distance, -vertical_distance, T::zero()),
             view_max: Vec3::new(horizontal_distance, vertical_distance, T::zero()),
-            x_res: width,
-            y_res: height,
+            x_res,
+            y_res,
+            width,
+            height,
             w: vpn,
             u,
             v,
@@ -81,6 +87,12 @@ impl<T: VertexFormat> Camera<T> {
 
         Ray::new(origin, direction)
     }
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+    pub fn height(&self) -> u32 {
+        self.height
+    }
 }
 
 #[cfg(test)]
@@ -92,8 +104,8 @@ mod tests {
         let look_at = Vec3::new(0.0, 0.0, 0.0);
         let look_from = Vec3::new(0.0, 0.0, 10.0);
         let up = Vec3::new(0.0, 1.0, 0.0);
-        let x = 1920.0;
-        let y = 1080.0;
+        let x = 1920;
+        let y = 1080;
         let h_fov = 1.22173;
 
         let camera = Camera::new(look_at, look_from, up, x, y, h_fov);
