@@ -11,7 +11,7 @@ pub struct Sphere<T: VertexFormat> {
 }
 
 impl<T: VertexFormat> Sphere<T> {
-    fn new(center: Vec3<T>, radius: T) -> Sphere<T> {
+    pub fn new(center: Vec3<T>, radius: T) -> Sphere<T> {
         Sphere { center, radius }
     }
 }

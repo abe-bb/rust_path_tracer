@@ -1,6 +1,6 @@
-use crate::common::{Color, Vec3, VertexFormat};
+use crate::common::{Color, Spacial, Vec3, VertexFormat};
 
-pub trait LightSource<T: VertexFormat> {
+pub trait LightSource<T: VertexFormat>: Spacial<T> {
     fn set_color(&mut self, color: Color<T>);
     fn color(&self) -> &Color<T>;
     fn light_vector(&self, point: &Vec3<T>) -> Vec3<T>;
@@ -14,6 +14,12 @@ pub struct PointLight<T: VertexFormat> {
 impl<T: VertexFormat> PointLight<T> {
     pub fn new(color: Color<T>, position: Vec3<T>) -> Self {
         PointLight { color, position }
+    }
+}
+
+impl<T: VertexFormat> Spacial<T> for PointLight<T> {
+    fn location(&self) -> &Vec3<T> {
+        &self.position
     }
 }
 

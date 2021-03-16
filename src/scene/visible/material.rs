@@ -35,17 +35,17 @@ impl<T: VertexFormat> Material<T> {
         }
     }
 
-    fn ambient(&self) -> Vec3<T> {
+    pub fn ambient(&self) -> Vec3<T> {
         self.ambient_color
             .color_vector()
             .scalar_mul(&self.diffuse_color.color_vector())
             .mul(self.ambient_coefficient)
     }
 
-    fn diffuse(
+    pub fn diffuse(
         &self,
         intersection: &Intersection<T>,
-        light_source: Box<dyn LightSource<T>>,
+        light_source: &Box<dyn LightSource<T>>,
     ) -> Vec3<T> {
         // normalized vector from intersection point to light source
         let l = light_source.light_vector(&intersection.point);
@@ -63,10 +63,10 @@ impl<T: VertexFormat> Material<T> {
             .mul(angle)
     }
 
-    fn specular(
+    pub fn specular(
         &self,
         intersection: &Intersection<T>,
-        light_source: Box<dyn LightSource<T>>,
+        light_source: &Box<dyn LightSource<T>>,
         viewpoint: &Vec3<T>,
     ) -> Vec3<T> {
         let l = light_source.light_vector(&intersection.point);
@@ -131,7 +131,7 @@ mod tests {
             normal: Vec3::new(0.0, 0.0, -1.0),
         };
 
-        let light = Box::new(PointLight::new(
+        let light: Box<dyn LightSource<f64>> = Box::new(PointLight::new(
             Color::new(0.5, 0.5, 0.5).unwrap(),
             Vec3::new(0.0, 0.0, 0.0),
         ));
@@ -144,7 +144,7 @@ mod tests {
 
         assert_eq!(
             expected_diffuse.color_vector(),
-            &material.diffuse(&intersection, light)
+            &material.diffuse(&intersection, &light)
         );
     }
 
@@ -166,7 +166,7 @@ mod tests {
             normal: Vec3::new(0.0, 0.0, -1.0),
         };
 
-        let light = Box::new(PointLight::new(
+        let light: Box<dyn LightSource<f64>> = Box::new(PointLight::new(
             Color::new(0.5, 0.5, 0.5).unwrap(),
             Vec3::new(0.0, 0.0, 0.0),
         ));
@@ -185,7 +185,7 @@ mod tests {
 
         assert_eq!(
             expected_specular.color_vector(),
-            &material.specular(&intersection, light, &viewpoint)
+            &material.specular(&intersection, &light, &viewpoint)
         )
     }
 }

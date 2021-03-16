@@ -2,17 +2,16 @@ use crate::common::{Color, Intersection, Ray, Spacial, Vec3, VertexFormat};
 use crate::scene::light::LightSource;
 use crate::scene::visible::material::Material;
 
-mod material;
-mod mesh;
-mod sphere;
+pub mod material;
+pub mod mesh;
+pub mod sphere;
 
 pub trait Visible<T: VertexFormat>: Intersectable<T> {
     fn calculate_lighting(
         &self,
         intersection: &Intersection<T>,
-        lights: &Vec<Box<dyn LightSource<T>>>,
+        lights: &Vec<&Box<dyn LightSource<T>>>,
         viewpoint: &Vec3<T>,
-        ambient_color: &Color<T>,
     ) -> Color<T>;
 
     fn is_reflective(&self) -> bool;
@@ -22,9 +21,15 @@ pub trait Intersectable<T: VertexFormat>: Spacial<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>>;
 }
 
-struct Body<T: VertexFormat> {
+pub struct Body<T: VertexFormat> {
     shape: Box<dyn Intersectable<T>>,
     material: Material<T>,
+}
+
+impl<T: VertexFormat> Body<T> {
+    pub fn new(shape: Box<dyn Intersectable<T>>, material: Material<T>) -> Body<T> {
+        Body { shape, material }
+    }
 }
 
 impl<T: VertexFormat> Spacial<T> for Body<T> {
@@ -35,7 +40,7 @@ impl<T: VertexFormat> Spacial<T> for Body<T> {
 
 impl<T: VertexFormat> Intersectable<T> for Body<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
-        self.intersect(ray)
+        self.shape.intersect(ray)
     }
 }
 
@@ -43,11 +48,21 @@ impl<T: VertexFormat> Visible<T> for Body<T> {
     fn calculate_lighting(
         &self,
         intersection: &Intersection<T>,
-        lights: &Vec<Box<dyn LightSource<T>>>,
+        lights: &Vec<&Box<dyn LightSource<T>>>,
         viewpoint: &Vec3<T>,
-        ambient_color: &Color<T>,
     ) -> Color<T> {
-        unimplemented!()
+        let mut color = self.material.ambient();
+        let reflective = self.material.is_reflective();
+
+        for light in lights {
+            color.mut_add(self.material.diffuse(intersection, light));
+
+            if reflective {
+                color.mut_add(self.material.specular(intersection, light, viewpoint))
+            }
+        }
+
+        Color::clipped(color)
     }
 
     fn is_reflective(&self) -> bool {

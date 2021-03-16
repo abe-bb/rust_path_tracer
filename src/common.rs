@@ -88,6 +88,18 @@ impl<T: VertexFormat> Vec3<T> {
 
         self
     }
+
+    pub fn clip(&mut self, value: T) {
+        self.x = self.x.max(value);
+        self.y = self.y.max(value);
+        self.z = self.z.max(value);
+    }
+
+    pub fn mut_add(&mut self, other: Vec3<T>) {
+        self.x = self.x + other.x;
+        self.y = self.x + other.y;
+        self.z = self.x + other.z;
+    }
 }
 
 impl<T: VertexFormat> std::ops::Sub for Vec3<T> {
@@ -127,6 +139,11 @@ impl<T: VertexFormat> Color<T> {
     // Validates color representation, returning None if passed in color data is invalid
     pub fn new(red: T, green: T, blue: T) -> Option<Color<T>> {
         Color::from_color_vertex(Vec3::new(red, green, blue))
+    }
+
+    pub fn clipped(mut color: Vec3<T>) -> Color<T> {
+        color.clip(T::one());
+        Color { color }
     }
 
     // Validates color representation, returning None if passed in vertex is invalid
