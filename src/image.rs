@@ -1,5 +1,4 @@
 use crate::common::{Color, VertexFormat};
-use std::fmt::{self, Display, Formatter};
 use std::slice::Iter;
 
 pub struct Image<T: VertexFormat> {

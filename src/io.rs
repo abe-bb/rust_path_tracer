@@ -10,12 +10,12 @@ pub fn write_image_ppm<T: VertexFormat>(filename: &str, image: &Image<T>) {
 
     let mut output_stream = BufWriter::new(file);
 
-    write!(output_stream, "P3\n");
-    write!(output_stream, "{} {}\n", image.width(), image.height());
-    write!(output_stream, "{}\n", 255);
+    write!(output_stream, "P3\n").unwrap();
+    write!(output_stream, "{} {}\n", image.width(), image.height()).unwrap();
+    write!(output_stream, "{}\n", 255).unwrap();
 
     for pixel in image.iter() {
-        write!(output_stream, " {} ", pixel);
+        write!(output_stream, " {} ", pixel).unwrap();
     }
 
     output_stream.flush().unwrap();
