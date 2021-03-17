@@ -1,8 +1,8 @@
 use num;
 use num::ToPrimitive;
-use std::fmt::Debug;
+use std::fmt::{self, Debug, Display, Formatter};
 
-const EPSILON: f32 = 0.0000001;
+const EPSILON: f32 = 0.000001;
 
 // Traits defining needed operations for vectors
 pub trait VertexFormat: num::Float + Debug + ToPrimitive {}
@@ -177,6 +177,17 @@ impl<T: VertexFormat> Color<T> {
     pub fn clip_mul(&mut self, value: T) {
         self.color.mul(value);
         self.color.clip(T::one());
+    }
+}
+
+// Default display format. writes as 8 bit RGB color.
+impl<T: VertexFormat> Display for Color<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let red = (T::from(255).unwrap() * self.color.x).to_u8().unwrap();
+        let green = (T::from(255).unwrap() * self.color.y).to_u8().unwrap();
+        let blue = (T::from(255).unwrap() * self.color.z).to_u8().unwrap();
+
+        write!(f, "{} {} {}", red, green, blue)
     }
 }
 

@@ -1,9 +1,23 @@
 use crate::common::{Color, VertexFormat};
+use std::fmt::{self, Display, Formatter};
+use std::slice::Iter;
 
 pub struct Image<T: VertexFormat> {
     width: u32,
     height: u32,
     buffer: Vec<Color<T>>,
+}
+
+pub struct ImageIterator<'a, T: VertexFormat> {
+    buffer_iter: Iter<'a, Color<T>>,
+}
+
+impl<'a, T: VertexFormat> Iterator for ImageIterator<'a, T> {
+    type Item = &'a Color<T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.buffer_iter.next()
+    }
 }
 
 impl<T: VertexFormat> Image<T> {
@@ -23,8 +37,32 @@ impl<T: VertexFormat> Image<T> {
             panic!("Index out of bounds");
         }
 
-        let index = (x * self.width + y) as usize;
+        let x = self.width - x - 1;
+        let y = self.height - y - 1;
+
+        let index = (y * self.width + x) as usize;
 
         self.buffer[index] = color;
+    }
+
+    pub fn iter(&self) -> ImageIterator<T> {
+        ImageIterator {
+            buffer_iter: self.buffer.iter(),
+        }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+}
+
+impl<T: VertexFormat> Iterator for Image<T> {
+    type Item = Color<T>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!()
     }
 }

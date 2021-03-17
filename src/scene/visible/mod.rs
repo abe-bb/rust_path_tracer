@@ -57,11 +57,11 @@ impl<T: VertexFormat> Visible<T> for Body<T> {
         let reflective = self.material.is_reflective();
 
         for light in lights {
-            color.mut_add(&self.material.diffuse(intersection, light));
+            let diffuse = self.material.diffuse(intersection, light);
+            let specular = self.material.specular(intersection, light, viewpoint);
 
-            if reflective {
-                color.mut_add(&self.material.specular(intersection, light, viewpoint))
-            }
+            color.mut_add(&diffuse);
+            color.mut_add(&specular)
         }
 
         Color::clipped(color)

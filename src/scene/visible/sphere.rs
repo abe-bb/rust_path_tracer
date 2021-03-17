@@ -21,7 +21,7 @@ impl<T: VertexFormat> Intersectable<T> for Sphere<T> {
         let oc = self.center.sub(&ray.origin);
         let tca = ray.direction.dot(&oc);
         let oc_d2 = oc.mag_sqrd();
-        let inside_sphere = oc_d2 < self.radius;
+        let inside_sphere = oc_d2 < (self.radius * self.radius);
 
         // Ray does not intersect sphere
         if tca < T::zero() && !inside_sphere {
@@ -42,9 +42,7 @@ impl<T: VertexFormat> Intersectable<T> for Sphere<T> {
         }
 
         let point = ray.origin.add(&ray.direction.mul(t));
-        let mut normal = ray.origin.sub(&self.center).div(self.radius);
-
-        normal = normal.normalize();
+        let mut normal = point.sub(&self.center).div(self.radius);
 
         Some(Intersection { point, normal })
     }
@@ -88,5 +86,26 @@ mod tests {
         let intersection_point = sphere.intersect(&ray).unwrap();
 
         assert_eq!(expected_point, intersection_point.point)
+    }
+
+    #[test]
+    fn sphere_behind_ray() {
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5);
+        let origin = Vec3::new(0.0, 0.0, 0.0);
+
+        let ray_origin = Vec3::new(0.0, 0.0, 0.5000009999999975);
+        let ray_direction = Vec3::new(0.0, 0.768221405535296, 0.6401842485389455);
+
+        // let intersection = Intersection {
+        //     point: origin,
+        //     normal: Vec3::new(0.0, 0.0, 1.0),
+        // };
+
+        let ray = Ray::new(ray_origin, ray_direction);
+
+        let intersection = sphere.intersect(&ray);
+
+        assert_eq!(None, intersection);
+        // let ray = Ray::new(, )
     }
 }

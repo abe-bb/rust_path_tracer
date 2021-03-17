@@ -44,22 +44,20 @@ impl<T: VertexFormat> Scene<T> {
     pub fn render(&self) -> Image<T> {
         let mut image = Image::new(self.camera.width(), self.camera.height());
 
-        let mut i = T::zero();
-        while i < *self.camera.x_res() {
-            let mut j = T::zero();
-            while j < *self.camera.y_res() {
+        let mut j = T::zero();
+        while j < *self.camera.y_res() {
+            let mut i = T::zero();
+            while i < *self.camera.x_res() {
                 let ray = self.camera.ray(i, j);
 
                 let pixel = self.trace_ray(ray, 0);
 
-                println!("i: {:?}, j {:?}, Color: {:?}", i, j, pixel);
-
                 image.set_pixel(i.to_u32().unwrap(), j.to_u32().unwrap(), pixel);
 
-                j = j + T::one();
+                i = i + T::one();
             }
 
-            i = i + T::one();
+            j = j + T::one();
         }
 
         image
@@ -82,7 +80,7 @@ impl<T: VertexFormat> Scene<T> {
                 if (visible.is_reflective()) {
                     let reflection_ray = Scene::calculate_reflection(&intersection, &ray);
 
-                    let mut reflection_color = self.trace_ray(ray, depth);
+                    let mut reflection_color = self.trace_ray(reflection_ray, depth);
 
                     // weight calculated colors
                     reflection_color.clip_mul(visible.reflection_coefficient());
@@ -98,13 +96,12 @@ impl<T: VertexFormat> Scene<T> {
     }
 
     fn calculate_reflection(intersection: &Intersection<T>, ray: &Ray<T>) -> Ray<T> {
-        let reflection = ray
-            .direction
-            .sub(
-                &intersection
-                    .normal
-                    .mul(ray.direction.dot(&intersection.normal)),
-            )
+        let l = ray.origin.sub(&intersection.point).normalize();
+        let reflection = intersection
+            .normal
+            .mul(intersection.normal.dot(&l))
+            .mul(T::from(2.0).unwrap())
+            .sub(&l)
             .normalize();
 
         Ray::new(intersection.point.clone(), reflection)
@@ -118,7 +115,7 @@ impl<T: VertexFormat> Scene<T> {
 
         for visible in &self.visibles {
             if let Some(mut i) = visible.intersect(&ray) {
-                let distance = i.point.sub(&self.camera.location()).mag_sqrd();
+                let distance = i.point.sub(&ray.origin).mag_sqrd();
                 if distance < dist {
                     dist = distance;
                     i.epsilon_shift();
@@ -126,7 +123,6 @@ impl<T: VertexFormat> Scene<T> {
                 }
             }
         }
-
         nearest
     }
 
@@ -141,9 +137,9 @@ impl<T: VertexFormat> Scene<T> {
             match nearest_intersection {
                 Some((intrsct, vis)) => {
                     let dist_to_light = light.location().sub(&intersection.point).mag_sqrd();
-                    let dist_to_vis = vis.location().sub(&intersection.point).mag_sqrd();
+                    let dist_to_object = intrsct.point.sub(&intersection.point).mag_sqrd();
 
-                    if dist_to_light < dist_to_vis {
+                    if dist_to_light < dist_to_object {
                         lights.push(light);
                     }
                 }
