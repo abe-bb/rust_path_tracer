@@ -14,6 +14,8 @@ pub trait Visible<T: VertexFormat>: Intersectable<T> {
         viewpoint: &Vec3<T>,
     ) -> Color<T>;
 
+    fn reflection_coefficient(&self) -> T;
+
     fn is_reflective(&self) -> bool;
 }
 
@@ -55,14 +57,18 @@ impl<T: VertexFormat> Visible<T> for Body<T> {
         let reflective = self.material.is_reflective();
 
         for light in lights {
-            color.mut_add(self.material.diffuse(intersection, light));
+            color.mut_add(&self.material.diffuse(intersection, light));
 
             if reflective {
-                color.mut_add(self.material.specular(intersection, light, viewpoint))
+                color.mut_add(&self.material.specular(intersection, light, viewpoint))
             }
         }
 
         Color::clipped(color)
+    }
+
+    fn reflection_coefficient(&self) -> T {
+        *self.material.reflective_coefficient()
     }
 
     fn is_reflective(&self) -> bool {

@@ -1,3 +1,3 @@
-mod common;
-mod image;
-mod scene;
+pub mod common;
+pub mod image;
+pub mod scene;

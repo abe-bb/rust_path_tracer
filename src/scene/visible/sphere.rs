@@ -41,10 +41,12 @@ impl<T: VertexFormat> Intersectable<T> for Sphere<T> {
             t = tca - thc2.sqrt();
         }
 
-        Some(Intersection {
-            point: ray.origin.add(&ray.direction.mul(t)),
-            normal: ray.origin.sub(&self.center).div(self.radius),
-        })
+        let point = ray.origin.add(&ray.direction.mul(t));
+        let mut normal = ray.origin.sub(&self.center).div(self.radius);
+
+        normal = normal.normalize();
+
+        Some(Intersection { point, normal })
     }
 }
 

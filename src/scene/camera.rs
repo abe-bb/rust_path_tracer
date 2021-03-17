@@ -93,6 +93,12 @@ impl<T: VertexFormat> Camera<T> {
     pub fn height(&self) -> u32 {
         self.height
     }
+    pub fn x_res(&self) -> &T {
+        &self.x_res
+    }
+    pub fn y_res(&self) -> &T {
+        &self.y_res
+    }
 }
 
 #[cfg(test)]

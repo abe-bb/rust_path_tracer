@@ -4,11 +4,11 @@ use crate::scene::camera::Camera;
 use crate::scene::light::LightSource;
 use crate::scene::visible::Visible;
 
-mod camera;
-mod light;
-mod visible;
+pub mod camera;
+pub mod light;
+pub mod visible;
 
-struct Scene<T: VertexFormat> {
+pub struct Scene<T: VertexFormat> {
     camera: Camera<T>,
     visibles: Vec<Box<dyn Visible<T>>>,
     ambient_color: Color<T>,
@@ -42,37 +42,86 @@ impl<T: VertexFormat> Scene<T> {
 
     // immutable self borrows
     pub fn render(&self) -> Image<T> {
-        Image::new(self.camera.width(), self.camera.height())
+        let mut image = Image::new(self.camera.width(), self.camera.height());
+
+        let mut i = T::zero();
+        while i < *self.camera.x_res() {
+            let mut j = T::zero();
+            while j < *self.camera.y_res() {
+                let ray = self.camera.ray(i, j);
+
+                let pixel = self.trace_ray(ray, 0);
+
+                println!("i: {:?}, j {:?}, Color: {:?}", i, j, pixel);
+
+                image.set_pixel(i.to_u32().unwrap(), j.to_u32().unwrap(), pixel);
+
+                j = j + T::one();
+            }
+
+            i = i + T::one();
+        }
+
+        image
     }
 
-    fn trace_ray(&self, ray: Ray<T>) -> Color<T> {
+    // depth parameter currently unused
+    fn trace_ray(&self, ray: Ray<T>, depth: u32) -> Color<T> {
         let nearest = self.intersect(&ray);
 
         match nearest {
             Some((intersection, visible)) => {
                 let visible_lights = self.visible_lights(&intersection);
 
-                return visible.calculate_lighting(
+                let mut color = visible.calculate_lighting(
                     &intersection,
                     &visible_lights,
                     self.camera.location(),
                 );
+
+                if (visible.is_reflective()) {
+                    let reflection_ray = Scene::calculate_reflection(&intersection, &ray);
+
+                    let mut reflection_color = self.trace_ray(ray, depth);
+
+                    // weight calculated colors
+                    reflection_color.clip_mul(visible.reflection_coefficient());
+                    color.clip_mul(T::one() - visible.reflection_coefficient());
+
+                    color.clip_add(&reflection_color);
+                }
+
+                color
             }
             None => self.background_color.clone(),
         }
     }
 
+    fn calculate_reflection(intersection: &Intersection<T>, ray: &Ray<T>) -> Ray<T> {
+        let reflection = ray
+            .direction
+            .sub(
+                &intersection
+                    .normal
+                    .mul(ray.direction.dot(&intersection.normal)),
+            )
+            .normalize();
+
+        Ray::new(intersection.point.clone(), reflection)
+    }
+
     // intersects a ray with every visible in the scene, returning the nearest intersection (and a
     // reference to the visible it belongs to)
     fn intersect(&self, ray: &Ray<T>) -> Option<(Intersection<T>, &Box<dyn Visible<T>>)> {
-        let mut dist = T::zero();
+        let mut dist = T::infinity();
         let mut nearest = None;
 
         for visible in &self.visibles {
-            if let Some(i) = visible.intersect(&ray) {
+            if let Some(mut i) = visible.intersect(&ray) {
                 let distance = i.point.sub(&self.camera.location()).mag_sqrd();
                 if distance < dist {
                     dist = distance;
+                    i.epsilon_shift();
                     nearest = Some((i, visible));
                 }
             }
@@ -89,11 +138,16 @@ impl<T: VertexFormat> Scene<T> {
 
             let nearest_intersection = self.intersect(&ray);
 
-            if let Some((intrsct, vis)) = nearest_intersection {
-                let dist_to_light = light.location().sub(&intersection.point).mag_sqrd();
-                let dist_to_vis = vis.location().sub(&intersection.point).mag_sqrd();
+            match nearest_intersection {
+                Some((intrsct, vis)) => {
+                    let dist_to_light = light.location().sub(&intersection.point).mag_sqrd();
+                    let dist_to_vis = vis.location().sub(&intersection.point).mag_sqrd();
 
-                if dist_to_light < dist_to_vis {
+                    if dist_to_light < dist_to_vis {
+                        lights.push(light);
+                    }
+                }
+                None => {
                     lights.push(light);
                 }
             }
@@ -113,16 +167,16 @@ mod tests {
 
     #[test]
     fn test_single_traced_ray() {
-        let ambiant = Color::new(0.1, 0.1, 0.1).unwrap();
+        let ambiant = Color::new(1.0, 1.0, 1.0).unwrap();
 
         let sphere = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0);
         let material = Material::new(
-            0.6,
+            0.5,
             Color::new(0.5, 0.5, 0.5).unwrap(),
-            0.4,
-            Color::new(0.6, 0.0, 0.0).unwrap(),
+            0.2,
+            Color::new(0.6, 0.6, 0.6).unwrap(),
             32.0,
-            0.3,
+            0.1,
             ambiant.clone(),
             0.0,
         );
@@ -130,8 +184,8 @@ mod tests {
 
         let visible = Box::new(body);
         let light_source = Box::new(PointLight::new(
-            Color::new(1.0, 1.0, 1.0).unwrap(),
-            Vec3::new(0.0, 3.0, 1.0),
+            Color::new(1.0, 1.0, 0.0).unwrap(),
+            Vec3::new(0.0, 3.0, 8.0),
         ));
 
         let camera = Camera::new(
@@ -149,8 +203,51 @@ mod tests {
         scene.add_light(light_source);
         scene.add_visible(visible);
 
-        let color = scene.trace_ray(scene.camera.ray(960.0, 540.0));
+        let ray = scene.camera.ray(960.0, 540.0);
 
-        println!("{:?}", color.color_vector());
+        let color = scene.trace_ray(scene.camera.ray(960.0, 540.0), 0);
+    }
+
+    #[test]
+    fn test_render() {
+        let ambiant = Color::new(1.0, 1.0, 1.0).unwrap();
+
+        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 2.0);
+        let material = Material::new(
+            0.5,
+            Color::new(0.5, 0.5, 0.5).unwrap(),
+            0.2,
+            Color::new(0.6, 0.6, 0.6).unwrap(),
+            32.0,
+            0.1,
+            ambiant.clone(),
+            0.0,
+        );
+        let body = Body::new(Box::new(sphere), material);
+
+        let visible = Box::new(body);
+        let light_source = Box::new(PointLight::new(
+            Color::new(1.0, 1.0, 0.0).unwrap(),
+            Vec3::new(0.0, 3.0, 8.0),
+        ));
+
+        let camera = Camera::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(0.0, 0.0, 8.0),
+            Vec3::new(0.0, 1.0, 0.0),
+            100,
+            100,
+            70.0_f64.to_radians(),
+        );
+        let background_color = Color::new(0.2, 0.2, 0.2).unwrap();
+
+        let mut scene = Scene::new(camera, ambiant, background_color);
+
+        scene.add_light(light_source);
+        scene.add_visible(visible);
+
+        let ray = scene.camera.ray(50.0, 50.0);
+
+        let image = scene.render();
     }
 }

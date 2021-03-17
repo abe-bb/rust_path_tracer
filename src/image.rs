@@ -11,7 +11,10 @@ impl<T: VertexFormat> Image<T> {
         Image {
             width,
             height,
-            buffer: Vec::with_capacity((width * height) as usize),
+            buffer: vec![
+                Color::new(T::zero(), T::zero(), T::zero()).unwrap();
+                (width * height) as usize
+            ],
         }
     }
 

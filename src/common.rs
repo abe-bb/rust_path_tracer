@@ -1,10 +1,13 @@
 use num;
+use num::ToPrimitive;
 use std::fmt::Debug;
 
-// Traits defining needed operations for vectors
-pub trait VertexFormat: num::Float + Debug {}
+const EPSILON: f32 = 0.0000001;
 
-impl<T> VertexFormat for T where T: num::Float + Debug {}
+// Traits defining needed operations for vectors
+pub trait VertexFormat: num::Float + Debug + ToPrimitive {}
+
+impl<T> VertexFormat for T where T: num::Float + Debug + ToPrimitive {}
 
 // Trait for objects that are located in the 3D World
 pub trait Spacial<T: VertexFormat> {
@@ -90,15 +93,15 @@ impl<T: VertexFormat> Vec3<T> {
     }
 
     pub fn clip(&mut self, value: T) {
-        self.x = self.x.max(value);
-        self.y = self.y.max(value);
-        self.z = self.z.max(value);
+        self.x = self.x.min(value);
+        self.y = self.y.min(value);
+        self.z = self.z.min(value);
     }
 
-    pub fn mut_add(&mut self, other: Vec3<T>) {
+    pub fn mut_add(&mut self, other: &Vec3<T>) {
         self.x = self.x + other.x;
-        self.y = self.x + other.y;
-        self.z = self.x + other.z;
+        self.y = self.y + other.y;
+        self.z = self.z + other.z;
     }
 }
 
@@ -130,7 +133,7 @@ impl<T: VertexFormat> Ray<T> {
 }
 
 // Color struct. Stores colors using values from RGB from 0.0 to 1.0
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Color<T: VertexFormat> {
     color: Vec3<T>,
 }
@@ -165,12 +168,32 @@ impl<T: VertexFormat> Color<T> {
     pub fn color_vector(&self) -> &Vec3<T> {
         &self.color
     }
+
+    pub fn clip_add(&mut self, other: &Color<T>) {
+        self.color.mut_add(&other.color);
+        self.color.clip(T::one());
+    }
+
+    pub fn clip_mul(&mut self, value: T) {
+        self.color.mul(value);
+        self.color.clip(T::one());
+    }
 }
 
 #[derive(PartialEq, Debug)]
 pub struct Intersection<T: VertexFormat> {
     pub point: Vec3<T>,
     pub normal: Vec3<T>,
+}
+
+impl<T: VertexFormat> Intersection<T> {
+    pub fn epsilon_shift(&mut self) {
+        let difference = T::from(EPSILON).unwrap();
+
+        let difference = self.normal.mul(difference);
+
+        self.point = self.point.add(&difference);
+    }
 }
 
 #[cfg(test)]

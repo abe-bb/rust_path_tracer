@@ -51,9 +51,6 @@ impl<T: VertexFormat> Material<T> {
         let l = light_source.light_vector(&intersection.point);
         let angle = T::zero().max(intersection.normal.dot(&l));
 
-        println!("light vector: {:?}", l);
-        println!("angle: {:?}", angle);
-
         // diffuse color calculation
         light_source
             .color()
@@ -87,6 +84,10 @@ impl<T: VertexFormat> Material<T> {
 
     pub fn is_reflective(&self) -> bool {
         self.reflective_coefficient > T::zero()
+    }
+
+    pub fn reflective_coefficient(&self) -> &T {
+        &self.reflective_coefficient
     }
 }
 
