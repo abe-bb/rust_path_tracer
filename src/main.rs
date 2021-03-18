@@ -12,7 +12,7 @@ fn main() {
     // test("test.ppm");
     // diffuse("diffuse.ppm");
     // reflection("reflection.ppm")
-    test_complex("custom.ppm");
+    demo_complex("custom.ppm");
 }
 
 // execute to render a quick example scene
