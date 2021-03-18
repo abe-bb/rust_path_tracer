@@ -9,8 +9,9 @@ use ray_tracer::scene::visible::Body;
 use ray_tracer::scene::Scene;
 
 fn main() {
-    diffuse("diffuse.ppm");
     // test();
+    // diffuse("diffuse.ppm");
+    reflection("reflection.ppm")
 }
 
 fn test() {
@@ -98,6 +99,7 @@ fn test() {
     io::write_image_ppm("test.ppm", &image);
 }
 
+// execute to render an example diffuse scene, and write it to filename
 fn diffuse(filename: &str) {
     let camera = Camera::new(
         Vec3::new(0.0, 0.0, 0.0),
@@ -109,10 +111,10 @@ fn diffuse(filename: &str) {
     );
 
     let light = DirectionalLight::new(
-        Color::new_unclipped(2.0, 2.0, 2.0),
+        Color::new_unclipped(1.0, 1.0, 1.0),
         Vec3::new(1.0, 0.0, 0.0),
     );
-    let ambient_color = Color::new(0.15, 0.15, 0.15).unwrap();
+    let ambient_color = Color::new(0.1, 0.1, 0.1).unwrap();
     let background_color = Color::new(0.2, 0.2, 0.2).unwrap();
 
     let sphere1 = Sphere::new(Vec3::new(0.35, 0.0, -0.1), 0.05);
@@ -203,6 +205,81 @@ fn diffuse(filename: &str) {
     io::write_image_ppm(filename, &image);
 }
 
-// fn reflection(filename: &str) {
-//
-// }
+// execute to render an example reflective scene, and write it to filename
+fn reflection(filename: &str) {
+    let camera = Camera::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 1.2),
+        Vec3::new(0.0, 1.0, 0.0),
+        1080,
+        1080,
+        (55.0_f64 * 2.0).to_radians(),
+    );
+
+    let light = DirectionalLight::new(
+        Color::new_unclipped(2.0, 2.0, 2.0),
+        Vec3::new(0.0, 1.0, 0.0),
+    );
+
+    let ambient_color = Color::new(0.0, 0.0, 0.0).unwrap();
+    let background_color = Color::new(0.2, 0.2, 0.2).unwrap();
+
+    let sphere1 = Sphere::new(Vec3::new(0.0, 0.3, 0.0), 0.2);
+    let sphere1_mat = Material::new(
+        0.0,
+        Color::new_unclipped(0.75, 0.75, 0.75),
+        0.9,
+        Color::new_unclipped(1.0, 1.0, 1.0),
+        10.0,
+        1.0,
+        ambient_color.clone(),
+        0.7,
+    );
+    let body1 = Body::new(Box::new(sphere1), sphere1_mat);
+
+    let triangle1 = Triangle::new(
+        Vec3::new(0.0, -0.5, 0.5),
+        Vec3::new(1.0, 0.5, 0.0),
+        Vec3::new(0.0, -0.5, -0.5),
+    );
+    let triangle1_mat = Material::new(
+        0.9,
+        Color::new_unclipped(0.0, 0.0, 1.0),
+        0.0,
+        Color::new_unclipped(1.0, 1.0, 1.0),
+        4.0,
+        1.0,
+        ambient_color.clone(),
+        0.0,
+    );
+    let body2 = Body::new(Box::new(triangle1), triangle1_mat);
+
+    let triangle2 = Triangle::new(
+        Vec3::new(0.0, -0.5, 0.5),
+        Vec3::new(0.0, -0.5, -0.5),
+        Vec3::new(-1.0, 0.5, 0.0),
+    );
+    let triangle2_mat = Material::new(
+        0.9,
+        Color::new_unclipped(1.0, 1.0, 0.0),
+        0.0,
+        Color::new_unclipped(1.0, 1.0, 1.0),
+        4.0,
+        1.0,
+        ambient_color.clone(),
+        0.0,
+    );
+    let body3 = Body::new(Box::new(triangle2), triangle2_mat);
+
+    let mut scene = Scene::new(camera, ambient_color, background_color);
+
+    scene.add_light(Box::new(light));
+
+    scene.add_visible(Box::new(body1));
+    scene.add_visible(Box::new(body2));
+    scene.add_visible(Box::new(body3));
+
+    let image = scene.render();
+
+    io::write_image_ppm(filename, &image);
+}

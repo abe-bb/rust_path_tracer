@@ -181,7 +181,7 @@ impl<T: VertexFormat> Color<T> {
     }
 
     pub fn clip_mul(&mut self, value: T) {
-        self.color.mul(value);
+        self.color = self.color.mul(value);
         self.color.clip(T::one());
     }
 }
