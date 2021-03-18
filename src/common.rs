@@ -144,6 +144,12 @@ impl<T: VertexFormat> Color<T> {
         Color::from_color_vertex(Vec3::new(red, green, blue))
     }
 
+    pub fn new_unclipped(red: T, green: T, blue: T) -> Color<T> {
+        Color {
+            color: Vec3::new(red, green, blue),
+        }
+    }
+
     pub fn clipped(mut color: Vec3<T>) -> Color<T> {
         color.clip(T::one());
         Color { color }

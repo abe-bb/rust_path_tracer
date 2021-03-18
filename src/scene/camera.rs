@@ -40,8 +40,10 @@ impl<T: VertexFormat> Camera<T> {
         let vertical_fov = T::from(2.0).unwrap()
             * ((horizontal_fov / T::from(2.0).unwrap()).tan() * (y_res / x_res)).atan();
 
-        let horizontal_distance: T = (horizontal_fov / T::from(2.0).unwrap()).tan();
-        let vertical_distance = (vertical_fov / T::from(2.0).unwrap()).tan();
+        let horizontal_distance: T =
+            (horizontal_fov / T::from(2.0).unwrap()).tan() * T::from(2.0).unwrap().sqrt();
+        let vertical_distance =
+            (vertical_fov / T::from(2.0).unwrap()).tan() * T::from(2.0).unwrap().sqrt();
 
         let vpn = look_from.sub(&look_at).normalize();
 

@@ -37,6 +37,42 @@ impl<T: VertexFormat> LightSource<T> for PointLight<T> {
     }
 }
 
+pub struct DirectionalLight<T: VertexFormat> {
+    color: Color<T>,
+    position: Vec3<T>,
+    light_direction: Vec3<T>,
+}
+
+impl<T: VertexFormat> DirectionalLight<T> {
+    pub fn new(color: Color<T>, light_direction: Vec3<T>) -> DirectionalLight<T> {
+        DirectionalLight {
+            color,
+            position: Vec3::new(T::infinity(), T::infinity(), T::infinity()),
+            light_direction,
+        }
+    }
+}
+
+impl<T: VertexFormat> Spacial<T> for DirectionalLight<T> {
+    fn location(&self) -> &Vec3<T> {
+        &self.position
+    }
+}
+
+impl<T: VertexFormat> LightSource<T> for DirectionalLight<T> {
+    fn set_color(&mut self, color: Color<T>) {
+        self.color = color;
+    }
+
+    fn color(&self) -> &Color<T> {
+        &self.color
+    }
+
+    fn light_vector(&self, point: &Vec3<T>) -> Vec3<T> {
+        self.light_direction.clone()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -99,15 +99,23 @@ impl<T: VertexFormat> Intersectable<T> for Triangle<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
         let v_d = self.normal.dot(&ray.direction);
 
-        if v_d >= T::zero() {
+        if v_d == T::zero() {
             return None;
         }
-
-        let v_o = -(self.normal.dot(&ray.origin) + self.d);
+        //     if one sided plane, uncomment
+        // else if v_d > T::zero() {
+        //     return None;
+        // }
 
         let t = -(self.normal.dot(&ray.origin) + self.d) / v_d;
         if t < T::zero() {
             return None;
+        }
+        let mut normal = self.normal.clone();
+
+        // comment out if one sided planes
+        if v_d > T::zero() {
+            normal = normal.mul(T::one().neg());
         }
 
         let intersection_point = ray.origin.add(&ray.direction.mul(t));
@@ -115,7 +123,7 @@ impl<T: VertexFormat> Intersectable<T> for Triangle<T> {
         if self.projection_intersection(&intersection_point) {
             Some(Intersection {
                 point: intersection_point,
-                normal: self.normal.clone(),
+                normal,
             })
         } else {
             None

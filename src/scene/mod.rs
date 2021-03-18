@@ -139,7 +139,7 @@ impl<T: VertexFormat> Scene<T> {
                     let dist_to_light = light.location().sub(&intersection.point).mag_sqrd();
                     let dist_to_object = intrsct.point.sub(&intersection.point).mag_sqrd();
 
-                    if dist_to_light < dist_to_object {
+                    if dist_to_light <= dist_to_object {
                         lights.push(light);
                     }
                 }
