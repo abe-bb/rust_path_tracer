@@ -51,11 +51,6 @@ impl<T: VertexFormat> Material<T> {
         let l = light_source.light_vector(&intersection.point);
         let angle = T::zero().max(intersection.normal.dot(&l));
 
-        println!(
-            "normal: {:?}, l: {:?}, angle: {:?}",
-            intersection.normal, l, angle
-        );
-
         // diffuse color calculation
         light_source
             .color()

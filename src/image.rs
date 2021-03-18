@@ -36,7 +36,6 @@ impl<T: VertexFormat> Image<T> {
             panic!("Index out of bounds");
         }
 
-        let x = self.width - x - 1;
         let y = self.height - y - 1;
 
         let index = (y * self.width + x) as usize;

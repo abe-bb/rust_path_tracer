@@ -15,6 +15,8 @@ impl<T: VertexFormat> Triangle<T> {
         let vector2 = v3.sub(&v1);
 
         let normal = vector1.cross(&vector2).normalize();
+
+        println!("normal: {:?}", normal);
         let d = Vec3::new(T::zero(), T::zero(), T::zero())
             .sub(&v1)
             .dot(&normal)
@@ -49,23 +51,49 @@ impl<T: VertexFormat> Triangle<T> {
 
     fn projection_intersection(&self, plane_intersection: &Vec3<T>) -> bool {
         let axis_to_drop = self.axis_to_drop();
-        let v1 = self.project(&self.vertices[0].sub(plane_intersection), axis_to_drop);
-        let v2 = self.project(&self.vertices[1].sub(plane_intersection), axis_to_drop);
-        let v3 = self.project(&self.vertices[2].sub(plane_intersection), axis_to_drop);
+        let mut uv_vector = Vec::new();
+        uv_vector.push(self.project(&self.vertices[0].sub(plane_intersection), axis_to_drop));
+        uv_vector.push(self.project(&self.vertices[1].sub(plane_intersection), axis_to_drop));
+        uv_vector.push(self.project(&self.vertices[2].sub(plane_intersection), axis_to_drop));
 
-        let mut count = 0_u32;
+        let mut sign_holder: i8;
+        let mut next_sign_holder: i8;
 
-        if v1.0 > T::zero() && v2.0 >= T::zero() {
-            count += 1;
-        }
-        if v2.0 > T::zero() && v3.0 >= T::zero() {
-            count += 1;
-        }
-        if v3.0 > T::zero() && v1.0 >= T::zero() {
-            count += 1;
+        let mut num_crossings = 0;
+
+        if uv_vector.first().unwrap().1 < T::zero() {
+            sign_holder = -1;
+        } else {
+            sign_holder = 1;
         }
 
-        count % 2 == 1
+        for i in 0..uv_vector.len() {
+            let i_plus = (i + 1) % uv_vector.len();
+
+            let uv = uv_vector[i];
+            let uv_plus = uv_vector[i_plus];
+
+            if uv_plus.1 < T::zero() {
+                next_sign_holder = -1;
+            } else {
+                next_sign_holder = 1;
+            }
+
+            if sign_holder != next_sign_holder {
+                if (uv.0 > T::zero() && uv_plus.0 > T::zero()) {
+                    num_crossings += 1;
+                } else if uv.0 > T::zero() || uv_plus.0 > T::zero() {
+                    let u_cross = uv.0 - uv.1 * (uv_plus.0 - uv.0) / (uv_plus.1 - uv.1);
+                    if u_cross > T::zero() {
+                        num_crossings += 1;
+                    }
+                }
+            }
+
+            sign_holder = next_sign_holder;
+        }
+
+        num_crossings % 2 == 1
     }
 }
 
@@ -78,7 +106,7 @@ impl<T: VertexFormat> Intersectable<T> for Triangle<T> {
         } else if dot > T::zero() {
             return None;
         }
-        let t = -(self.normal.dot(&ray.origin) + self.d) / dot;
+        let t = (-(self.normal.dot(&ray.origin) + self.d)) / dot;
         if t <= T::zero() {
             return None;
         }
