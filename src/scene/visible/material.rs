@@ -1,6 +1,7 @@
 use crate::common::{Color, Intersection, Vec3, VertexFormat};
 use crate::scene::light::LightSource;
 
+#[derive(Debug, Clone)]
 pub struct Material<T: VertexFormat> {
     diffuse_coefficient: T,
     diffuse_color: Color<T>,

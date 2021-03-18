@@ -8,6 +8,8 @@ pub mod camera;
 pub mod light;
 pub mod visible;
 
+const REFLECTION_BOUNCES: u32 = 12;
+
 pub struct Scene<T: VertexFormat> {
     camera: Camera<T>,
     visibles: Vec<Box<dyn Visible<T>>>,
@@ -77,14 +79,13 @@ impl<T: VertexFormat> Scene<T> {
                     self.camera.location(),
                 );
 
-                if (visible.is_reflective()) {
+                if visible.is_reflective() && depth < REFLECTION_BOUNCES {
                     let reflection_ray = Scene::calculate_reflection(&intersection, &ray);
 
-                    let mut reflection_color = self.trace_ray(reflection_ray, depth);
+                    let mut reflection_color = self.trace_ray(reflection_ray, depth + 1);
 
                     // weight calculated colors
                     reflection_color.clip_mul(visible.reflection_coefficient());
-                    color.clip_mul(T::one() - visible.reflection_coefficient());
 
                     color.clip_add(&reflection_color);
                 }

@@ -54,7 +54,6 @@ impl<T: VertexFormat> Visible<T> for Body<T> {
         viewpoint: &Vec3<T>,
     ) -> Color<T> {
         let mut color = self.material.ambient();
-        let reflective = self.material.is_reflective();
 
         for light in lights {
             let diffuse = self.material.diffuse(intersection, light);
