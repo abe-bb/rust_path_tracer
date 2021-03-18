@@ -286,8 +286,9 @@ fn reflection(filename: &str) {
     io::write_image_ppm(filename, &image);
 }
 
-// execute to render a more complex example scene
-fn test_complex(filename: &str) {
+// execute to render a more complex demo scene, demonstrating spheres, meshes, diffuse,
+// specular, and reflection
+fn demo_complex(filename: &str) {
     let ambiant = Color::new(1.0, 1.0, 1.0).unwrap();
 
     let sphere = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 0.5);
