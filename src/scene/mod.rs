@@ -64,7 +64,7 @@ impl<T: VertexFormat> Scene<T> {
     }
 
     // depth parameter currently unused
-    fn trace_ray(&self, ray: Ray<T>, depth: u32) -> Color<T> {
+    pub fn trace_ray(&self, ray: Ray<T>, depth: u32) -> Color<T> {
         let nearest = self.intersect(&ray);
 
         match nearest {

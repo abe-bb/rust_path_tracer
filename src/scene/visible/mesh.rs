@@ -16,11 +16,9 @@ impl<T: VertexFormat> Triangle<T> {
 
         let normal = vector1.cross(&vector2).normalize();
 
-        println!("normal: {:?}", normal);
         let d = Vec3::new(T::zero(), T::zero(), T::zero())
             .sub(&v1)
-            .dot(&normal)
-            .abs();
+            .dot(&normal);
 
         Triangle {
             vertices: vec![v1, v2, v3],
@@ -99,15 +97,16 @@ impl<T: VertexFormat> Triangle<T> {
 
 impl<T: VertexFormat> Intersectable<T> for Triangle<T> {
     fn intersect(&self, ray: &Ray<T>) -> Option<Intersection<T>> {
-        let dot = self.normal.dot(&ray.direction);
+        let v_d = self.normal.dot(&ray.direction);
 
-        if dot == T::zero() {
-            return None;
-        } else if dot > T::zero() {
+        if v_d >= T::zero() {
             return None;
         }
-        let t = (-(self.normal.dot(&ray.origin) + self.d)) / dot;
-        if t <= T::zero() {
+
+        let v_o = -(self.normal.dot(&ray.origin) + self.d);
+
+        let t = -(self.normal.dot(&ray.origin) + self.d) / v_d;
+        if t < T::zero() {
             return None;
         }
 

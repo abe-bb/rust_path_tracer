@@ -1,5 +1,5 @@
 use ray_tracer::common::{Color, Vec3};
-use ray_tracer::io::write_image_ppm;
+use ray_tracer::io;
 use ray_tracer::scene::camera::Camera;
 use ray_tracer::scene::light::PointLight;
 use ray_tracer::scene::visible::material::Material;
@@ -15,9 +15,9 @@ fn main() {
     let material = Material::new(
         0.6,
         Color::new(0.5, 0.5, 0.5).unwrap(),
-        1.0,
+        0.35,
         Color::new(1.0, 1.0, 1.0).unwrap(),
-        256.0,
+        64.0,
         0.1,
         ambiant.clone(),
         0.1,
@@ -26,19 +26,19 @@ fn main() {
     let sphere1 = Sphere::new(Vec3::new(-0.75, 0.5, 1.0), 0.2);
     let material1 = Material::new(
         0.6,
-        Color::new(1.0, 1.0, 1.0).unwrap(),
-        0.1,
-        Color::new(1.0, 1.0, 0.1).unwrap(),
-        256.0,
+        Color::new(0.3, 0.3, 1.0).unwrap(),
+        0.3,
+        Color::new(0.3, 0.3, 0.1).unwrap(),
+        64.0,
         0.1,
         ambiant.clone(),
         0.0,
     );
 
     let triangle = Triangle::new(
-        Vec3::new(0.55, -0.55, 2.0),
-        Vec3::new(-0.25, 0.55, 2.0),
-        Vec3::new(-0.55, -0.55, 2.0),
+        Vec3::new(0.55, -0.55, 4.0),
+        Vec3::new(-0.25, 0.55, 4.0),
+        Vec3::new(-0.55, -0.55, 4.0),
     );
     let material2 = Material::new(
         0.6,
@@ -59,9 +59,14 @@ fn main() {
     let visible1 = Box::new(body1);
     let visible2 = Box::new(body2);
 
-    let light_source = Box::new(PointLight::new(
-        Color::new(1.0, 1.0, 1.0).unwrap(),
-        Vec3::new(0.0, 0.5, 3.0),
+    let light_source1 = Box::new(PointLight::new(
+        Color::new(0.80, 0.80, 0.80).unwrap(),
+        Vec3::new(1.0, 0.5, 3.0),
+    ));
+
+    let light_source2 = Box::new(PointLight::new(
+        Color::new(0.7, 0.7, 1.0).unwrap(),
+        Vec3::new(-1.0, -0.5, 3.0),
     ));
 
     let camera = Camera::new(
@@ -72,16 +77,18 @@ fn main() {
         1080,
         70.0_f64.to_radians(),
     );
+
     let background_color = Color::new(0.2, 0.2, 0.2).unwrap();
 
     let mut scene = Scene::new(camera, ambiant, background_color);
 
-    scene.add_light(light_source);
+    scene.add_light(light_source1);
+    scene.add_light(light_source2);
     scene.add_visible(visible);
     scene.add_visible(visible1);
-    scene.add_visible(visible2);
+    // scene.add_visible(visible2);
 
     let image = scene.render();
 
-    write_image_ppm("test.ppm", &image);
+    io::write_image_ppm("test.ppm", &image);
 }
